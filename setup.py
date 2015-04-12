@@ -20,7 +20,6 @@ setup(
         'Development Status :: 4 - beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
-        # TODO (only those tested with tox)
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
