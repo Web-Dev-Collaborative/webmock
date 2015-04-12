@@ -32,6 +32,6 @@ setup(
     keywords='mock testing web http',
     packages=['webmock'],
     extras_require={
-        'test': ['nose', 'coverage'],
+        'test': ['nose', 'coverage', 'tox'],
     },
 )

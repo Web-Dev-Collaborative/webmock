@@ -1,7 +1,11 @@
 from webmock import mock_server
 from wsgiref import simple_server
-import urllib2
 import socket
+
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 def assert_port_closed(port):
     try:
@@ -14,5 +18,5 @@ def assert_port_closed(port):
 
 def test_contextmanager():
     with mock_server(simple_server.demo_app) as port:
-        assert 'Hello' in urllib2.urlopen('http://127.0.0.1:%d/hi' % port).read()
+        assert 'Hello' in urlopen('http://127.0.0.1:%d/hi' % port).read().decode('ascii')
     assert_port_closed(port)

@@ -1,14 +1,20 @@
 from wsgiref import simple_server
 from contextlib import contextmanager
 import threading
-import urllib2
 import logging
 
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+
 log = logging.getLogger('webmock')
+
 
 class StoppableWSGIServer(simple_server.WSGIServer):
 
     stopped = False
+
     def serve_forever(self):
         while not self.stopped:
             self.handle_request()
@@ -40,6 +46,6 @@ def mock_server(app):
 
     yield svr.server_port
 
-    urllib2.urlopen('http://127.0.0.1:%d%s' % (svr.server_port, quit_path))
+    urlopen('http://127.0.0.1:%d%s' % (svr.server_port, quit_path))
     thd.join()
     svr.server_close()
