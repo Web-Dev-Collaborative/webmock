@@ -1,5 +1,4 @@
 from wsgiref import simple_server
-from contextlib import contextmanager
 import threading
 import logging
 
@@ -26,26 +25,56 @@ class LoggingWSGIRequestHandler(simple_server.WSGIRequestHandler):
         log.debug(format % args)
 
 
-@contextmanager
-def mock_server(app):
+class MockServer(object):
+
     quit_path = '/$!mock_server/quit'
 
-    def middleware(environ, start_response):
-        if environ['PATH_INFO'] == quit_path:
-            svr.stopped = True
+    def __init__(self, app):
+        self.app = app
+        self._server = None
+
+    def _middleware(self, environ, start_response):
+        if environ['PATH_INFO'] == self.quit_path:
+            self._server.stopped = True
             start_response('200 OK', [])
             return []
-        return app(environ, start_response)
-    svr = simple_server.make_server('127.0.0.1', 0, middleware,
-                                    server_class=StoppableWSGIServer,
-                                    handler_class=LoggingWSGIRequestHandler)
+        return self.app(environ, start_response)
 
-    thd = threading.Thread(name='mock_server', target=svr.serve_forever)
-    thd.daemon = True
-    thd.start()
+    def __enter__(self):
+        assert not self._server, "server already started"
 
-    yield svr.server_port
+        self._server = simple_server.make_server(
+                '127.0.0.1', 0, self._middleware,
+                server_class=StoppableWSGIServer,
+                handler_class=LoggingWSGIRequestHandler)
 
-    urlopen('http://127.0.0.1:%d%s' % (svr.server_port, quit_path))
-    thd.join()
-    svr.server_close()
+        self._thread = threading.Thread(
+                name='mock_server',
+                target=self._server.serve_forever)
+        self._thread.daemon = True
+        self._thread.start()
+
+        return self._server.server_port
+
+    start = __enter__
+
+    def __exit__(self, *exc_info):
+        assert self._server, "server not running"
+
+        urlopen('http://127.0.0.1:%d%s' % (self._server.server_port, self.quit_path))
+        self._thread.join()
+        self._server.server_close()
+        self._server = None
+
+    stop = __exit__
+
+    def __call__(self, fn):
+        def replacement(*args, **kwargs):
+            port = self.start()
+            try:
+                fn(port, *args, **kwargs)
+            finally:
+                self.stop()
+        return replacement
+
+mock_server = MockServer
