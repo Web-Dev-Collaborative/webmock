@@ -61,7 +61,9 @@ class MockServer(object):
     def __exit__(self, *exc_info):
         assert self._server, "server not running"
 
-        urlopen('http://127.0.0.1:%d%s' % (self._server.server_port, self.quit_path))
+        # send the quit signal
+        urlopen('http://127.0.0.1:%d%s' % (self._server.server_port,
+                                           self.quit_path))
         self._thread.join()
         self._server.server_close()
         self._server = None
