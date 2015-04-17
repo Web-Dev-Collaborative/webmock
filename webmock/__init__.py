@@ -1,4 +1,6 @@
 from wsgiref import simple_server
+from ._version import get_versions
+
 import threading
 import logging
 
@@ -80,3 +82,6 @@ class MockServer(object):
         return replacement
 
 mock_server = MockServer
+
+__version__ = get_versions()['version']
+del get_versions

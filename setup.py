@@ -2,6 +2,13 @@ from setuptools import setup
 from codecs import open
 from os import path
 
+import versioneer
+versioneer.VCS = 'git'
+versioneer.versionfile_source = 'webmock/_version.py'
+versioneer.versionfile_build = 'webmock/_version.py'
+versioneer.tag_prefix = ''
+versioneer.parentdir_prefix = 'webmock-'
+
 here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -9,7 +16,8 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='webmock',
-    version='1.0.0',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='Mock web server for testing web clients',
     long_description=long_description,
     #url='https://github.com/pypa/sampleproject',
