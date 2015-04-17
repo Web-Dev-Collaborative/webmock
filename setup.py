@@ -25,7 +25,7 @@ setup(
     author_email='dustin@v.igoro.us',
     license='MIT',
     classifiers=[
-        'Development Status :: 4 - beta',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
