@@ -45,3 +45,27 @@ Or manually started and stopped::
         server.stop()
 
 In the latter case, be careful to stop the server.
+
+Mock App
+--------
+
+The ``webmock`` package includes a simple WSGI app which behaves like the Python ``Mock``: it accepts and records any request, and allows tests to make assertions after the operation is complete.
+
+Its usage is simple:
+
+    from mockweb import mock_server, MockApp
+
+    app = MockApp()
+    with mock_server(app):
+        # ..
+    app.assert_called_with('GET /foo/bar')
+
+The assertion methods available are:
+
+    * ``assert_called_with(call)`` -- assert that the most recent request matches ``call``
+    * ``assert_called_once_with(call)`` -- assert that only one request was made and that it matches ``call``
+    * ``assert_any_call(call)`` -- assert that the any request matches ``call``
+    * ``assert_has_call([call, call, ..], any_order=False)`` -- assert that the given calls all occurred.
+      If ``any_order`` is false, the calls must be sequential.
+
+A call can be described with a string containing the method and the path.
