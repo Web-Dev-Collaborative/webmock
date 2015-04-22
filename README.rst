@@ -69,3 +69,10 @@ The assertion methods available are:
       If ``any_order`` is false, the calls must be sequential.
 
 A call can be described with a string containing the method and the path.
+
+The mock app's behavior can be adjusted in some minor ways.
+For anything more complex, build a custom WSGI app.
+
+    * ``MockApp(response='403 Forbidden')`` -- customize the HTTP response (default is "200 OK")
+    * ``MockApp(body='hello world\n')`` -- customize the response body (default is empty)
+    * ``MockApp(headers=[('X-Auth', 'abc123')])`` -- customize the response headers

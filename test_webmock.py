@@ -5,8 +5,10 @@ import socket
 
 try:
     from urllib.request import urlopen
+    from urllib.error import HTTPError
 except ImportError:
     from urllib2 import urlopen
+    from urllib2 import HTTPError
 
 def assert_port_closed(port):
     try:
@@ -115,3 +117,24 @@ def test_MockApp_assert_has_calls_ordered_ok_all_calls():
         urlopen('http://127.0.0.1:%d/cruel' % port)
         urlopen('http://127.0.0.1:%d/world' % port)
     app.assert_has_calls(['GET /hello', 'GET /cruel', 'GET /world'], any_order=False)
+
+def test_MockApp_custom_response():
+    app = MockApp(response='403 Forbidden')
+    with mock_server(app) as port:
+        assert_raises(HTTPError, lambda:
+            urlopen('http://127.0.0.1:%d/world' % port))
+    app.assert_any_call('GET /world')
+
+def test_MockApp_custom_body():
+    app = MockApp(body=b'oh noes')
+    with mock_server(app) as port:
+        resp = urlopen('http://127.0.0.1:%d/world' % port).read()
+        assert resp == b'oh noes', 'got {!r}'.format(resp)
+    app.assert_any_call('GET /world')
+
+def test_MockApp_custom_headers():
+    app = MockApp(headers=[('Authorization', 'Bearer abc')])
+    with mock_server(app) as port:
+        resp = urlopen('http://127.0.0.1:%d/world' % port)
+        assert resp.headers['authorization'] == 'Bearer abc', resp.headers
+    app.assert_any_call('GET /world')
