@@ -21,26 +21,26 @@ There are several ways to do this, but all of them produce a port number.
 
 As a context manager::
 
-    from mockweb import mock_server
+    from webmock import mock_server
     def test_web_request():
         with mock_server(simple_app) as port:
             my_client.get_greeting('http://127.0.0.1:{}'.format(port))
 
 As a decorator::
 
-    from mockweb import mock_server
+    from webmock import mock_server
     @mock_server(simple_app)
     def test_web_request(port):
         my_client.get_greeting('http://127.0.0.1:{}'.format(port))
 
 Or manually started and stopped::
 
-    from mockweb import mock_server
+    from webmock import mock_server
     @mock_server
     def test_web_request():
         server = mock_server(simple_app)
         # ...
-        server.start()
+        port = server.start()
         my_client.get_greeting('http://127.0.0.1:{}'.format(port))
         server.stop()
 
@@ -53,10 +53,10 @@ The ``webmock`` package includes a simple WSGI app which behaves like the Python
 
 Its usage is simple::
 
-    from mockweb import mock_server, MockApp
+    from webmock import mock_server, MockApp
 
     app = MockApp()
-    with mock_server(app):
+    with mock_server(app) as port:
         # ..
     app.assert_called_with('GET /foo/bar')
 
